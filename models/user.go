@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	db "example.com/rest-api/database"
 	"example.com/rest-api/utils"
 )
@@ -32,4 +34,21 @@ func (u User) Save() error {
 	userId, err := result.LastInsertId()
 	u.ID = userId
 	return err // nil if no error occurred
+}
+
+func (u User) ValidateCredentials(password string) error {
+	query := `SELECT password FROM users WHERE email = ?`
+	row := db.DB.QueryRow(query, u.Email)
+	
+	var retreivedPassword string
+	err := row.Scan(&retreivedPassword)
+	if err != nil {
+		return errors.New("credentials invalid")
+	}
+
+	passwordIsValid := utils.CheckPasswordHash(u.Password, retreivedPassword)
+	if !passwordIsValid {
+		return errors.New("credentials invalid")
+	}
+	return nil // password is valid
 }
