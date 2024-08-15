@@ -40,8 +40,8 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
-	event.ID = 1
-	event.UserID = 1
+	userId := context.GetInt64("userId")
+	event.UserID = userId
 
 	err = event.Save()
 	if err != nil {
@@ -54,18 +54,26 @@ func createEvent(context *gin.Context) {
 }
 
 func updateEvent(context *gin.Context) {
+	// get the event ID from the context
 	eventID, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event ID"})
 		return
 	}
 
-	_, err = models.GetEventByID(eventID)
+	// get the userId from the context & check if the user is the owner of the event
+	userId := context.GetInt64("userId")
+	event, err := models.GetEventByID(eventID)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch event"})
 		return
 	}
+	if event.UserID != userId {
+		context.JSON(http.StatusForbidden, gin.H{"error": "You are not allowed to update this event"})
+		return
+	}
 
+	// parse the request data passed by the user
 	var updatedEvent models.Event
 	err = context.ShouldBindJSON(&updatedEvent)
 	if err != nil {
@@ -73,6 +81,7 @@ func updateEvent(context *gin.Context) {
 		return
 	}
 
+	// update the event in the database via the model
 	updatedEvent.ID = eventID
 	err = updatedEvent.Update()
 	if err != nil {
@@ -83,18 +92,26 @@ func updateEvent(context *gin.Context) {
 }
 
 func deleteEvent(context *gin.Context) {
+	// get the event ID from the context
 	eventID, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event ID"})
 		return
 	}
 
+	// get the userId from the context & check if the user is the owner of the event
+	userId := context.GetInt64("userId")
 	event, err := models.GetEventByID(eventID)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch event"})
 		return
 	}
+	if event.UserID != userId {
+		context.JSON(http.StatusForbidden, gin.H{"error": "You are not allowed to delete this event"})
+		return
+	}
 
+	// delete the event in the database via the model
 	err = event.Delete()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete event"})
