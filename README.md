@@ -1,4 +1,4 @@
-# Project: REST API
+# Go-Booking: REST API
 - Building a REST API with Go
 - Go-powered "Event Booking" API
 
@@ -13,6 +13,6 @@
 - POST `events/<id>/register` -> Register for an event (auth required)
 - DELETE `events/<id>/register` -> Cancel registration (auth required)
 
-### Note
-- This part of the course will be completed in a GitHub Repo
-- [Repository Link]("")
+### Information
+- [GitHub Repo](https://github.com/jaimalhi/Go-Booking)
+- Using [Gin](https://github.com/gin-gonic/gin) package to handle endpoints
