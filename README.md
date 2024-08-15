@@ -17,3 +17,4 @@
 - [GitHub Repo](https://github.com/jaimalhi/Go-Booking)
 - Using [Gin](https://github.com/gin-gonic/gin) package to handle endpoints
 - Using [SQLite](https://github.com/mattn/go-sqlite3) for database
+- Using [bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt) for hashing
